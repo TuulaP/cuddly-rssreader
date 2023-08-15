@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 from requests_html import HTML
 from requests_html import HTMLSession
+import numpy as np
 
 
 ## trick to get away of one unneeded warning 
@@ -75,15 +76,33 @@ def get_feed(url):
     return df
 
 
+# TODO get these from external file
+urls = """https://devclass.com/feed/
+https://practicaldatascience.co.uk/feed.xml"
+https://rss.nytimes.com/services/xml/rss/nyt/World.xml
+"""
 
-url1 = "https://devclass.com/feed/"
-url2 = "https://practicaldatascience.co.uk/feed.xml"
+df=pd.DataFrame(np.zeros([1, 3]))
+result = []
 
-df1 = get_feed(url1) 
-df2 = get_feed(url2)
+for feedlink in urls.split("\n"):
+
+    feedlink = feedlink.strip()
+
+    if len(feedlink) <= 5:
+        continue
+
+    print("Processing: {}".format(feedlink))
+
+    tempdf = get_feed(feedlink)
+    result = pd.concat([df,tempdf])
 
 
-result = pd.concat([df1, df2])
+#df1 = get_feed(url1) 
+#df2 = get_feed(url2)
+#result = pd.concat([df1, df2])
+
+
 
 shortinfo = result[["title", "guid", "pubDate"]]
 
@@ -100,5 +119,7 @@ for index, row in shortinfo.iterrows():
     # dte   = row["pubDate"]   ???
 
     print('{}, {}'.format(title, row))
+
+## TODO some fancier outputting here
 
 
